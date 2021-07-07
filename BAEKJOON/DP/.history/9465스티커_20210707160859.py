@@ -9,6 +9,7 @@ def getMaxPoint(pattern, cache, sticker, n):
     """
     if cache[pattern][n] != -1: #캐시에 이전에 계산한 결과가 있다.
         return cache[pattern][n]
+    
     if n < 0:
         pass
     else:

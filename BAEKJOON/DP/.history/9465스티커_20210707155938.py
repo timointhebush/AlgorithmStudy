@@ -1,7 +1,3 @@
-# 백준 제출 시
-#import sys
-#sys.setrecursionlimit(10**6)
-
 def getMaxPoint(pattern, cache, sticker, n):
     """
     sticker에서, 마지막 열 스티커가 pattern의 형태로 제거되었을 때,
@@ -9,6 +5,7 @@ def getMaxPoint(pattern, cache, sticker, n):
     """
     if cache[pattern][n] != -1: #캐시에 이전에 계산한 결과가 있다.
         return cache[pattern][n]
+    
     if n < 0:
         pass
     else:
