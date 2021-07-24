@@ -1,17 +1,30 @@
 def solution(gems):
-    answer = []
-    gemSet = set(gems)
-    gemN = len(gemSet)
-    N = len(gems)
-    for rng in range(gemN, N+1):
-        for start in range(N-rng+1):
-            copyOfGemSet = gemSet.copy()
-            for idx in range(start, start+rng):
-                if gems[idx] in copyOfGemSet:
-                    copyOfGemSet.remove(gems[idx])
-            if len(copyOfGemSet) == 0:
-                return [start+1, start+rng]
+    ans = []
+    n = len(gems)
+    numOfTypes = len(set(gems))
+    l, r = 0, 0
+    numOfGems = {gems[l] : 1}
+    while l < n and r < n:
+        if len(numOfGems) < numOfTypes:
+            if r+1 <n:
+                r += 1
+                gem  = gems[r]
+                if gem in numOfGems:
+                    numOfGems[gem] += 1
+                else:
+                    numOfGems[gem] = 1
+        else: # len(numOfGems) = numOfTypes
+            ans.append((l, r))
+            gem = gems[l]
+            numOfGems[gem] -= 1
+            if numOfGems[gem] == 0:
+                del numOfGems[gem]
+            l += 1
+            
+    return(ans)
 
 print(solution(["DIA", "RUBY", "RUBY", "DIA", "DIA", "EMERALD", "SAPPHIRE", "DIA"]	))
 print(solution(["AA", "AB", "AC", "AA", "AC"]))
-print()
+print(solution(['A']))
+print(solution(["A","A","A","B","B"]))
+print(solution(["A","B","B","B","B","B","B","C","B","A"]))
