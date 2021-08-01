@@ -2,22 +2,23 @@ from collections import deque
 
 def solution(board):
     n = len(board)
-    queue = deque()
-    queue.append((0, 0, 0, 2))
-    queue.append((0, 0, 0, 3))
-    visited = {(0,0,2):True, (0,0,3):True}
-    moves = [ (-1, 0), (1, 0), (0, -1), (0, 1) ]
+    costBoard = [ [float('inf') for j in range(n)] for i in range(n) ]
+    moves = [ (-1, 0), (0, 1), (1, 0), (0, -1) ]
+    queue = deque( [ (0, 0, 1, 0), (0, 0, 2, 0) ] )
     while len(queue) != 0:
-        row, col, cost ,dirc = queue.popleft()
-        for move in moves:
-            m_row, m_col = move
-            n_row, n_col = row + m_row, col + m_col
-            if n_row < 0 or n_col < 0 or n_row >= n or n_col >= n or (n_row, n_col, dirc) in visited:
-                break
-            visited[ (n_row, n_col, dirc) ] = True
-            
+        row, col, dirc, cost = queue.popleft()
+        for nDirc, (mRow, mCol) in enumerate(moves):
+            if nDirc == dirc:
+                nCost = cost + 100
+            else:
+                nCost = cost + 600
+            nRow, nCol = row+mRow, col+mCol
+            if 0 <= nRow < n and 0 <= nCol < n and board[nRow][nCol]==0 and costBoard[nRow][nCol] >= nCost:
+                queue.append( (nRow, nCol, nDirc, nCost) )
+                costBoard[nRow][nCol] = nCost
+    return costBoard[-1][-1]
 
-    visited = {}
-    ans_board = [ [  ]   ]
-    answer = 0
-    return answer
+print(solution([[0,0,0],[0,0,0],[0,0,0]]))
+print(solution([[0,0,0,0,0,0,0,1],[0,0,0,0,0,0,0,0],[0,0,0,0,0,1,0,0],[0,0,0,0,1,0,0,0],[0,0,0,1,0,0,0,1],[0,0,1,0,0,0,1,0],[0,1,0,0,0,1,0,0],[1,0,0,0,0,0,0,0]]))
+print(solution([[0,0,1,0],[0,0,0,0],[0,1,0,1],[1,0,0,0]]))
+print(solution([[0,0,0,0,0,0],[0,1,1,1,1,0],[0,0,1,0,0,0],[1,0,0,1,0,1],[0,1,0,0,0,1],[0,0,0,0,0,0]]))
