@@ -41,7 +41,7 @@ class Table:
         return row
     
     def deleteRow(self, row):
-        self.stack.append(row.name)
+        self.stack.append(row)
         upRow, downRow = row.up, row.down
         upRow.down, downRow.up = downRow, upRow
         if downRow == self.head:
@@ -50,16 +50,10 @@ class Table:
             return downRow
 
     def restore(self):
-        newRow = Row(self.stack.pop())
-        betweenUp = self.head
-        betweenDown = self.head.down
-        while betweenDown != self.head:
-            if betweenDown.name > newRow.name:
-                break
-            betweenUp = betweenDown
-            betweenDown = betweenDown.down
-        betweenUp.down, betweenDown.up = newRow, newRow
-        newRow.down, newRow.up = betweenDown, betweenUp
+        deletedRow = self.stack.pop()
+        deletedUp, deletedDown = deletedRow.up, deletedRow.down
+        deletedUp.down, deletedDown.up = deletedRow, deletedRow
+
 
     def toList(self):
         tmp = []
