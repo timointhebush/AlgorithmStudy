@@ -1,38 +1,115 @@
+class Row:
+    def __init__(self, name):
+        self.name = name
+        self.up = None
+        self.down = None
+
+class Table:
+    def __init__(self):
+        head = Row(None)
+        head.up, head.down = head, head
+        self.head = head
+        self.stack = []
+
+    def add(self, name):
+        newRow = Row(name)
+        lastRow = self.head.up
+        self.head.up, lastRow.down = newRow, newRow
+        newRow.up, newRow.down = lastRow, self.head
+        
+    def insertDownTo(self, row, newRow):
+        downRow = row.down
+        row.down, downRow.up = newRow, newRow
+        newRow.up, newRow.down = row, downRow
+        
+    def search(self, name):
+        down = self.head.down
+        while down != self.head:
+            if down.name == name:
+                return down
+            down = down.down
+        return down
+
+    def moveUp(self, row, X):
+        for _ in range(X):
+            row = row.up
+        return row
+    
+    def moveDown(self, row, X):
+        for _ in range(X):
+            row = row.down
+        return row
+    
+    def deleteRow(self, row):
+        self.stack.append(row.name)
+        upRow, downRow = row.up, row.down
+        upRow.down, downRow.up = downRow, upRow
+        if downRow == self.head:
+            return upRow
+        else:
+            return downRow
+
+    def restore(self):
+        newRow = Row(self.stack.pop())
+        betweenUp = self.head
+        betweenDown = self.head.down
+        while betweenDown != self.head:
+            if betweenDown.name > newRow.name:
+                break
+            betweenUp = betweenDown
+            betweenDown = betweenDown.down
+        betweenUp.down, betweenDown.up = newRow, newRow
+        newRow.down, newRow.up = betweenDown, betweenUp
+
+    def toList(self):
+        tmp = []
+        down = self.head.down
+        while down != self.head:
+            tmp.append(down.name)
+            down = down.down
+        return tmp
+    
+    def getIdx(self, row):
+        idx = 0
+        down = self.head.down
+        while down != self.head:
+            if down.name == row.name:
+                return idx
+            down = down.down
+            idx += 1
+        return idx
+
+    def getDiff(self, n):
+        ans = ""
+        down = self.head.down
+        for ogN in range(n):
+            if down == self.head:
+                ans += "X"
+            else:
+                if ogN == down.name:
+                    ans += "O"
+                    down = down.down
+                else:
+                    ans += "X"
+        return ans
+            
+
+
 def solution(n, k, cmd):
-    answer = ''
-    stack = []
-    table = [_ for _ in range(n)]
-    idx = k
+    table = Table()
+    for name in range(n):
+        table.add(name)
+    curRow = table.search(k)
     for c in cmd:
         if c[0] == "U":
-            idx -= toNum(c)
+            curRow = table.moveUp(curRow, toNum(c))
         elif c[0] == "D":
-            idx += toNum(c)
+            curRow = table.moveDown(curRow, toNum(c))
         elif c[0] == "C":
-            stack.append( (idx, table[idx]) )
-            del table[idx]
-            if idx == len(table):
-                idx -= 1
-            else:
-                pass
-        elif c[0] == "Z":
-            d_idx, d_name = stack.pop()
-            table.insert(d_idx, d_name)
-            if d_idx <= idx:
-                idx += 1
-    print(table)
-    idx = 0
-    for value in table:
-        if idx == value:
-            idx += 1
-            answer += 'O'
-        else:
-            while idx < value:
-                idx +=1
-                answer += 'X'
-            idx += 1
-            answer += 'O'
-    return answer
+            curRow = table.deleteRow(curRow)
+        else: # "Z"
+            table.restore()
+    return table.getDiff(n)
 
 def toNum(c):
     tmp = c.split(" ")
