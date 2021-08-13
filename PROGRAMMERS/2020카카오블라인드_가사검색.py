@@ -21,32 +21,22 @@ class Node:
         num = 0
         while len(stack) != 0:
             node = stack.pop()
-            print("pop 노드 ", node.value)
-            if node.child == None:
-                print("자식이 없는 노드", node.value)
-                
-            else:
+            if node.child != None:
                 for childNode in node.child:
-                    print(node.value, "의 자식 중 하나",childNode.value)
                     stack.append(childNode)
                     if childNode.child == None and childNode.depth == targetDepth:
-                        print(childNode.value, "는 원하는 단어!")
                         num += 1
-                        print("현재 갯수 : ", num)
         return num
             
 class Tree:
     def __init__(self):
         self.root = Node(None, 0)
 
-
 def solution(words, queries):
     answer = []
     tree = createTree(Tree(), words)
     reverseTree = createReverseTree(Tree(), words)
-    BFS(tree)
     for query in queries:
-        print('-------', query)
         if query[0] == "?":
             answer.append(checkTree(reverseTree, query[::-1]))
         else:
@@ -55,23 +45,18 @@ def solution(words, queries):
 
 def createTree(tree, words):
     for word in words:
-        print(word, "를 트리에 추가")
         n = len(word)
         node = tree.root
         for i in range(n):
-            print("깊이 :", i+1, "단어 : ", word[i])
             childNode = node.findValue(word[i])
             if childNode == None:
-                print("자식 노드가 1개도 없었음")
                 node.child = [ Node(word[i], i+1) ]
                 node = node.child[0]
             elif childNode == False:
-                print("자식 노드 리스트에 찾고자하는 값 없음")
                 newNode = Node(word[i], i+1)
                 node.child.append(newNode)
                 node = newNode
             else:
-                print("자식 노드 중 발견")
                 node = childNode
     return tree
 
@@ -119,8 +104,6 @@ def BFS(tree):
             for childNode in node.child:
                 print("value: ", childNode.value, "--depth: ", childNode.depth)
                 queue.append(childNode)
-        
-
 
 print(solution(["frodo", "front", "frost", "frozen", "frame", "kakao"], ["fro??", "????o", "fr???", "fro???", "pro?"]))
     
