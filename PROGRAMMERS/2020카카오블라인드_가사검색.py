@@ -19,6 +19,11 @@ class Tree:
 
     def getCount(self, partOfQuery):
         node = self.root
+        if partOfQuery == "?":
+            count  = 0
+            for value in self.root.child.values():
+                count += value.count
+            return count
         for q in partOfQuery:
             if q in node.child:
                 node = node.child[q]
@@ -44,14 +49,14 @@ def solution(words, queries):
         n = len(query)
         if n in forwardTrees:
             if query[0] != "?": # 정방향
-                splitedQuery = query.split("?")
-                answer.append(forwardTrees[n].getCount(splitedQuery[0]))
+                splitedQuery = query.split("?")[0]
+                answer.append(forwardTrees[n].getCount(splitedQuery))
             else:
                 if query[n-1] == "?":
-                    answer.append(reverseTrees[n].root.count)
+                    splitedQuery = "?"
                 else:
-                    splitedQuery = query[::-1].split("?")
-                    answer.append(reverseTrees[n].getCount(splitedQuery[0]))
+                    splitedQuery = query.split("?")[-1]
+                answer.append(reverseTrees[n].getCount(splitedQuery[::-1]))
         else:
             answer.append(0)
     return answer
