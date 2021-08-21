@@ -5,17 +5,20 @@ def solution(board):
     # tuple의 0번째를 tail, 1번째를 head
     timeBoard = [ [float('inf') for _ in range(n)] for _ in range(n) ]
     queue = deque( [ ( (0,0), (0,1), 0 ) ] )
+    visited = set( ( (0,0), (0,1), 0 ) )
     while len(queue) != 0:
         start = queue.popleft()
         nextMoves = getNextMoves(start, board)
         if nextMoves:
             for connected in nextMoves:
-                if isLessThan(timeBoard, connected):
+                if connected not in visited:
                     updateTimeBoard(timeBoard, connected)
                     queue.append(connected)
-        # for b in timeBoard:
-        #     print(b)
-        # print("  ")
+                    visited.add( ( connected[0], connected[1] ) )
+        for b in timeBoard:
+            print(b)
+        print("  ")
+        print(visited)
     return timeBoard[-1][-1]
 
 def getNextMoves(robot, board):
