@@ -8,23 +8,24 @@ def solution(board):
             new_board[row][col] = board[row-1][col-1]
     import copy
     time_board = copy.deepcopy(new_board)
-    queue = deque( [ ( (1, 1), (1, 2) ) ] )
-    visited = set([ ( (1, 1), (1, 2) ) ])
+    queue = deque( [ ( (1, 1), (1, 2), 0 ) ] )
+    visited = set([ ((1, 1), (1, 2)) ])
     time = 0
     while queue:
-        time += 1
-        partA, partB = queue.popleft()
+        partA, partB, time = queue.popleft()
         if partA == (n, n) or partB == (n, n):
-            return time_board[n][n]
+            return time
         next_moves = getNextMoves(partA, partB, new_board)
+        # print(time, ":", next_moves)
         for n_partA, n_partB in next_moves:
             if ( n_partA, n_partB ) not in visited:
                 visited.add( (n_partA, n_partB) )
-                queue.append( ( n_partA, n_partB ) )
-                time_board[ n_partA[0] ][ n_partA[1] ] = time
-                time_board[ n_partB[0] ][ n_partB[1] ] = time
-        for i in time_board:
-            print(i)
+                queue.append( ( n_partA, n_partB, time+1 ) )
+                time_board[ n_partA[0] ][ n_partA[1] ] = time + 1
+                time_board[ n_partB[0] ][ n_partB[1] ] = time + 1
+        # for i in time_board:
+        #     print(i)
+        # print("")
 
 def getNextMoves(partA, partB, new_board):
     next_moves = []
@@ -38,12 +39,12 @@ def getNextMoves(partA, partB, new_board):
         for dire in [UP, DOWN]:
             if new_board[ partA[0]+dire ][ partA[1] ] != 1 and new_board[ partB[0]+dire ][ partB[1] ] != 1:
                 next_moves.append( ( partA, (partA[0]+dire, partA[1]) ) )
-                next_moves.append( ( (partB[0]+dire, partB[1]), partB ) )
+                next_moves.append( (  partB, (partB[0]+dire, partB[1]) ) )
     else: # 세로
         LEFT, RIGHT = -1, 1
         for dire in [LEFT, RIGHT]:
             if new_board[ partA[0] ][ partA[1]+dire ] != 1 and new_board[ partB[0] ][ partB[1]+dire ] != 1:
-                next_moves.append( ( partA, (partA[0], partA[1]+dire) ) )
+                next_moves.append( ( (partA[0], partA[1]+dire), partA ) ) 
                 next_moves.append( ( (partB[0], partB[1]+dire), partB ) )
     return next_moves
 
