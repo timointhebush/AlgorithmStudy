@@ -6,26 +6,17 @@ def solution(board):
     for row in range(1, n+1):
         for col in range(1, n+1):
             new_board[row][col] = board[row-1][col-1]
-    import copy
-    time_board = copy.deepcopy(new_board)
     queue = deque( [ ( (1, 1), (1, 2), 0 ) ] )
     visited = set([ ((1, 1), (1, 2)) ])
-    time = 0
     while queue:
         partA, partB, time = queue.popleft()
         if partA == (n, n) or partB == (n, n):
             return time
         next_moves = getNextMoves(partA, partB, new_board)
-        # print(time, ":", next_moves)
         for n_partA, n_partB in next_moves:
             if ( n_partA, n_partB ) not in visited:
                 visited.add( (n_partA, n_partB) )
                 queue.append( ( n_partA, n_partB, time+1 ) )
-                time_board[ n_partA[0] ][ n_partA[1] ] = time + 1
-                time_board[ n_partB[0] ][ n_partB[1] ] = time + 1
-        # for i in time_board:
-        #     print(i)
-        # print("")
 
 def getNextMoves(partA, partB, new_board):
     next_moves = []
