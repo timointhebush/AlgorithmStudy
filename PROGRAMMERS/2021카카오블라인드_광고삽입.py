@@ -1,31 +1,24 @@
 def solution(play_time, adv_time, logs):
-    play_sec = toSeconds(play_time)
-    new_logs = [(0,0)]
+    play_sec, adv_sec = toSeconds(play_time), toSeconds(adv_time)
+    new_logs = []
     for log in logs:
         tmp = log.split("-")
         start, end = toSeconds(tmp[0]), toSeconds(tmp[1])
         new_logs.append( (start, end) )
     new_logs = sorted(new_logs, key=lambda x : x[0])
-    adv_sec = toSeconds(adv_time)
     cand = {}
     # print(new_logs)
-    for i in range(len(new_logs)):
-        for end_i in [0,1]:
-            adv_start = new_logs[i][end_i]
-            adv_end = adv_start + adv_sec
-            accumWatch = getAccumWatchSec(new_logs, range(len(new_logs)), (adv_start, adv_end))
-            cand[toTime(adv_start)] = accumWatch
-            # if adv_end <= play_sec:
-            #     idx = i
-            #     overlapped = []
-            #     while idx < len(new_logs) and adv_end > new_logs[idx][0] :
-            #         overlapped.append(idx)
-            #         idx += 1
-            #     print(toTime(adv_start), overlapped)
-            #     accumWatch = getAccumWatchSec(new_logs, overlapped, (adv_start, adv_end))
-            #     cand[toTime(adv_start)] = accumWatch
-    # print(cand)
+    for i, log in enumerate(new_logs):
+        adv_start_sec = log[0]
+        adv_end_sec = adv_start_sec + adv_sec
+        accumWatch = 0
+        if adv_end_sec <= play_sec:
+            for start_sec, end_sec in new_logs[i:]:
+                accumWatch += getWatchSec((start_sec, end_sec), (adv_start_sec, adv_end_sec))
+        cand[ toTime(adv_start_sec) ] = accumWatch
     max_watch_sec = max(cand.values())
+    if max_watch_sec == 0:
+        return toTime(0)
     cand_max_start_sec = []
     for key, val in cand.items():
         if val == max_watch_sec:
@@ -54,12 +47,6 @@ def getWatchSec(log, adv):
     else:
         return log[1] - log[0]
 
-def getAccumWatchSec(new_logs, overlapped, adv):
-    sec = 0
-    for idx in overlapped:
-        # print(getWatchSec(new_logs[idx], adv))
-        sec += getWatchSec(new_logs[idx], adv)
-    return sec
 
 print(solution("02:03:55", "00:14:15", ["01:20:15-01:45:14", "00:40:31-01:00:00", "00:25:50-00:48:29", "01:30:59-01:53:29", "01:37:44-02:02:30"]))
 
