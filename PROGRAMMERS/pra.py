@@ -1,5 +1,5 @@
-a = set()
+a = 5
 
-b = set([1, 2])
-
-a.add(b)
+b = a
+b -= 1
+print(b)
