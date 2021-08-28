@@ -7,28 +7,26 @@ def solution(play_time, adv_time, logs):
         tmp = log.split("-")
         start, end = toSeconds(tmp[0]), toSeconds(tmp[1])
         logs_sec.append( (start, end) )
-    play = [0 for _ in range(play_sec)]
+    play = [0 for _ in range(play_sec+1)]
     
     for log in logs_sec:
-        for sec in range(log[0], log[1]):
-            play[sec] += 1
+        play[log[0]] += 1
+        play[log[1]] -= 1
 
-    queue = deque()
-    max_sec, max_end_adv_sec = 0, adv_sec
-    for sec in range(adv_sec):
-        queue.append(play[sec])
-        max_sec += play[sec]
+    for _ in range(2):
+        for sec in range(1, play_sec+1):
+            play[sec] += play[sec-1]
 
-    accum_sec = max_sec
-    for sec in range(adv_sec, play_sec):
-        accum_sec -= queue.popleft()
-        queue.append(play[sec])
-        accum_sec += play[sec]
+    max_start_adv_sec = 0
+    max_sec = play[adv_sec-1] - play[0]
+    
+    for sec in range(play_sec - adv_sec + 1):
+        accum_sec = play[sec + adv_sec] - play[sec]
         if accum_sec > max_sec:
             max_sec = accum_sec
-            max_end_adv_sec = sec+1
-    
-    return toTime(max_end_adv_sec - adv_sec)
+            max_start_adv_sec = sec + 1
+        
+    return toTime(max_start_adv_sec)
         
 def toSeconds(time):
     tmp = time.split(":")
