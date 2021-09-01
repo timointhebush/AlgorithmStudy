@@ -4,53 +4,35 @@ from itertools import product
 def solution(info, query):
     answer = []
     db = {}
-    for idx, data in enumerate(info):
-        data = data.split(" ")
-        key = (data[0], data[1], data[2], data[3])
-        if key in db:
-            db[key].append(data[4])
-        else:
-            db[key] = [data[4]]
-    print(db)
+    for i in info:
+        tmp = i.split(" ")
+        cases = product((tmp[0], "-"), (tmp[1], "-"), (tmp[2], "-"), (tmp[3], "-"))
+        for case in cases:
+            if case in db:
+                db[case].append(int(tmp[4]))
+            else:
+                db[case] = [int(tmp[4])]
 
     for q in query:
         tmp = q.split(" ")
-        lang, part = tmp[0], tmp[2]
-        career, food, score = tmp[4], tmp[6], int(tmp[7])
-        option = make_key(lang, part, career, food)
-        scores = []
-        for key in product(option[0], option[1], option[2], option[3]):
-            print("key", key)
-            if key not in db:
-                pass
-            else:
-                scores += db[key]
-        print(scores)
-        print("")
-        scores.sort()
-        # answer.append(len(scores) - scores.index(score))
-    print(answer)
+        key = (tmp[0], tmp[2], tmp[4], tmp[6])
+        scores = sorted(db[key])
+        idx = binary_search(scores, 0, len(scores) - 1, int(tmp[7]))
+        answer.append(idx)
+    return answer
 
 
-def make_key(lang, part, career, food):
-    option = [lang, part, career, food]
-    category = [
-        ["cpp", "java", "python"],
-        ["backend", "frontend"],
-        ['junior", "senior'],
-        ["chicken", "pizza"],
-    ]
-    for i in range(4):
-        if option[i] == "-":
-            option[i] = category[i]
-        else:
-            option[i] = [option[i]]
-    return option
+def binary_search(scores, start, end, target):
+    if start == end:
+        return start
+    mid = (start + end) // 2
+    if scores[mid] == target:
+        return mid
+    elif scores[mid] > target:
+        return binary_search(scores, mid + 1, end, target)
+    else:
+        return binary_search(scores, start, mid - 1, target)
 
-
-# def dd(scores, target):
-#     for i, s in enumerate(scores):
-#         if s
 
 print(
     solution(
