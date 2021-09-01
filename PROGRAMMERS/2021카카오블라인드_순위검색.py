@@ -16,22 +16,27 @@ def solution(info, query):
     for q in query:
         tmp = q.split(" ")
         key = (tmp[0], tmp[2], tmp[4], tmp[6])
-        scores = sorted(db[key])
-        idx = binary_search(scores, 0, len(scores) - 1, int(tmp[7]))
-        answer.append(idx)
+        if key in db:
+            scores = sorted(db[key])
+            # print(scores)
+            # print("target:", tmp[7])
+            idx = binary_search(scores, 0, len(scores) - 1, int(tmp[7]))
+            answer.append(len(scores) - idx)
+        else:
+            answer.append(0)
     return answer
 
 
 def binary_search(scores, start, end, target):
-    if start == end:
+    if start >= end:
         return start
     mid = (start + end) // 2
     if scores[mid] == target:
         return mid
     elif scores[mid] > target:
-        return binary_search(scores, mid + 1, end, target)
-    else:
         return binary_search(scores, start, mid - 1, target)
+    else:
+        return binary_search(scores, mid + 1, end, target)
 
 
 print(
