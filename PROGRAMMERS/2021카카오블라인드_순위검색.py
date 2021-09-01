@@ -1,4 +1,19 @@
-from itertools import product
+from itertools import combinations, product
+from bisect import bisect_left
+
+
+def make_all_cases(separate_info):
+    cases = []
+    for k in range(5):
+        for condition in combinations([0, 1, 2, 3], k):
+            case = []
+            for idx in range(4):
+                if idx not in condition:
+                    case.append(separate_info[idx])
+                else:
+                    case.append("-")
+            cases.append("".join(case))
+    return cases
 
 
 def solution(info, query):
@@ -6,7 +21,8 @@ def solution(info, query):
     db = {}
     for i in info:
         tmp = i.split(" ")
-        cases = product((tmp[0], "-"), (tmp[1], "-"), (tmp[2], "-"), (tmp[3], "-"))
+        cases = make_all_cases(tmp)
+        # print(cases)
         for case in cases:
             if case in db:
                 db[case].append(int(tmp[4]))
@@ -16,27 +32,17 @@ def solution(info, query):
     for q in query:
         tmp = q.split(" ")
         key = (tmp[0], tmp[2], tmp[4], tmp[6])
+        key = "".join(key)
+        # print(key)
         if key in db:
             scores = sorted(db[key])
             # print(scores)
             # print("target:", tmp[7])
-            idx = binary_search(scores, 0, len(scores) - 1, int(tmp[7]))
+            idx = bisect_left(scores, int(tmp[7]))
             answer.append(len(scores) - idx)
         else:
             answer.append(0)
     return answer
-
-
-def binary_search(scores, start, end, target):
-    if start >= end:
-        return start
-    mid = (start + end) // 2
-    if scores[mid] == target:
-        return mid
-    elif scores[mid] > target:
-        return binary_search(scores, start, mid - 1, target)
-    else:
-        return binary_search(scores, mid + 1, end, target)
 
 
 print(
