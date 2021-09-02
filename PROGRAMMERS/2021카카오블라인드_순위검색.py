@@ -1,19 +1,5 @@
-from itertools import combinations, product
+from itertools import product
 from bisect import bisect_left
-
-
-def make_all_cases(separate_info):
-    cases = []
-    for k in range(5):
-        for condition in combinations([0, 1, 2, 3], k):
-            case = []
-            for idx in range(4):
-                if idx not in condition:
-                    case.append(separate_info[idx])
-                else:
-                    case.append("-")
-            cases.append("".join(case))
-    return cases
 
 
 def solution(info, query):
@@ -21,7 +7,7 @@ def solution(info, query):
     db = {}
     for i in info:
         tmp = i.split(" ")
-        cases = make_all_cases(tmp)
+        cases = product((tmp[0], "-"), (tmp[1], "-"), (tmp[2], "-"), (tmp[3], "-"))
         # print(cases)
         for case in cases:
             if case in db:
@@ -29,13 +15,15 @@ def solution(info, query):
             else:
                 db[case] = [int(tmp[4])]
 
+    for value in db.values():
+        value.sort()
+
     for q in query:
         tmp = q.split(" ")
         key = (tmp[0], tmp[2], tmp[4], tmp[6])
-        key = "".join(key)
         # print(key)
         if key in db:
-            scores = sorted(db[key])
+            scores = db[key]
             # print(scores)
             # print("target:", tmp[7])
             idx = bisect_left(scores, int(tmp[7]))
