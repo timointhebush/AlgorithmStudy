@@ -26,7 +26,8 @@ def get_min_sales(i, root):
         return d[i][root]
     else:
         flag = False
-        diff = float("inf")
+        # 이부분 실수있었음. 팀원이 아무도 없는 경우를 고려하지 않음.
+        diff = 0 if len(tree[i]) == 0 else float("inf")
         for child in tree[i]:
             if get_min_sales(child, 0) > get_min_sales(child, 1):
                 flag = True
