@@ -1,17 +1,19 @@
 def solution(user_id, banned_id):
-    answer = 1
-    cand = {}
+    used = {_: False for _ in user_id}
+    cand = {_: [] for _ in banned_id}
     no_overlap_banned = list(set(banned_id))
     for banned in no_overlap_banned:
-        cnt = 0
         for user in user_id:
             if check(user, banned):
-                cnt += 1
-        cand[banned] = cnt
-    print(cand)
+                cand[banned].append(user)
+    global answer_set, board, answer
+    answer = 0
+    board = []
     for banned in banned_id:
-        answer *= cand[banned]
-        cand[banned] -= 1
+        board.append(cand[banned])
+    print(board)
+    answer_set = set()
+    dfs(0)
     return answer
 
 
@@ -25,7 +27,15 @@ def check(user, banned):
     return True
 
 
-# print(solution(["frodo", "fradi", "crodo", "abc123", "frodoc"], ["fr*d*", "abc1**"]))
+def dfs(row):
+    global answer_set
+    if row == len(board):
+        if len(answer_set) == len(board):
+            
+
+
+
+print(solution(["frodo", "fradi", "crodo", "abc123", "frodoc"], ["fr*d*", "abc1**"]))
 print(solution(["frodo", "fradi", "crodo", "abc123", "frodoc"], ["*rodo", "*rodo", "******"]))
 print(
     solution(
