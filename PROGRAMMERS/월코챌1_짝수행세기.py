@@ -2,8 +2,11 @@ from itertools import combinations
 
 
 def solution(a):
-    answer = -1
-    dfs(a, len(a[0]))
+    global answer, a_col_sum, row_cand
+    answer = 0
+    row_cand = create_row_cand(len(a[0]))
+    a_col_sum = get_col_sum(a)
+    dfs(a, [], len(a[0]))
     return answer
 
 
@@ -18,9 +21,17 @@ def get_col_sum(a):
     return col_sum
 
 
-def dfs(a, n_col):
+def check_col(_a):
+    _a_col_sum = get_col_sum(_a)
+    for i, num in enumerate(_a_col_sum):
+        if num > a_col_sum[i]:
+            return False
+    return True
+
+
+def create_row_cand(n_col):
     num_one = 2
-    row_cand = []
+    row_cand = [[0 for _ in range(n_col)]]
     while num_one <= n_col:
         for comb in combinations(range(n_col), num_one):
             mold = [0 for _ in range(n_col)]
@@ -28,9 +39,22 @@ def dfs(a, n_col):
                 mold[comb[i]] = 1
             row_cand.append(mold)
         num_one *= 2
-    print(row_cand)
+    return row_cand
 
 
-print(solution([[0, 1, 0], [1, 1, 1], [1, 1, 0], [0, 1, 1]]))
-print(solution([[1, 0, 0], [1, 0, 0]]))
+def dfs(a, _a, n_col):
+    global answer
+    if len(_a) == len(a):
+        if get_col_sum(a) == get_col_sum(_a):
+            answer += 1
+        return 0
+    for row in row_cand:
+        _a.append(row)
+        if check_col(_a):
+            dfs(a, _a, n_col)
+        _a.pop()
+
+
+# print(solution([[0, 1, 0], [1, 1, 1], [1, 1, 0], [0, 1, 1]]))
+# print(solution([[1, 0, 0], [1, 0, 0]]))
 print(solution([[1, 0, 0, 1, 1], [0, 0, 0, 0, 0], [1, 1, 0, 0, 0], [0, 0, 0, 0, 1]]))
