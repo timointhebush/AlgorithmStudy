@@ -1,5 +1,3 @@
-a = 5
+a = ("a", "b")
 
-b = a
-b -= 1
-print(b)
+print("a" in a)
