@@ -1,4 +1,5 @@
 from itertools import combinations
+from collections import deque
 
 
 def solution():
@@ -30,12 +31,33 @@ def make_cases():
 
 
 def check_connectivity(districts):
-    for dist in districts:
-        for node in dist:
-            connect_list = set(graph[node])
-            if connect_list & (dist - set([node])) == set():
-                return False
-    return True
+    district_A, district_B = districts
+    visited_n_A = bfs(district_A)
+    visited_n_B = bfs(district_B)
+    if visited_n_A + visited_n_B == N:
+        return True
+    else:
+        return False
+    # for dist in districts:
+    #     for node in dist:
+    #         connect_list = set(graph[node])
+    #         if connect_list & (dist - set([node])) == set():
+    #             return False
+    # return True
+
+
+def bfs(district):
+    list_district = list(district)
+    visited = set([list_district[0]])
+    queue = deque([list_district[0]])
+    while len(queue) != 0:
+        start = queue.popleft()
+        connected_nodes = graph[start]
+        for c_node in connected_nodes:
+            if c_node not in visited and c_node in district:
+                visited.add(c_node)
+                queue.append(c_node)
+    return len(visited)
 
 
 def get_pop_diff(districts):
