@@ -12,6 +12,9 @@ def solution():
     for _ in board:
         print(_)
     print(dict_fish_coord)
+    dict_fish_coord[0] = (0, 0)
+    return dfs(board, (0, 0), 0, dict_fish_coord)
+
     # 첫 상어 입장, 상어는 0번
     first_eaten = board[0][0][0]
     first_dir = board[0][0][1]
@@ -37,12 +40,16 @@ def solution():
 
 
 def dfs(board, move_cand, eaten_num, dict_fish_coord):
-    eaten_num = get_eaten_num(board, move_cand, eaten_num, dict_fish_coord)
-    move_fishes(board, dict_fish_coord)
-    shark_move_cand = get_shark_move_cand(board, dict_fish_coord)
+    c_board, c_dict_fish_coord = copy.deepcopy(board), copy.deepcopy(dict_fish_coord)
+    eaten_num = get_eaten_num(c_board, move_cand, eaten_num, c_dict_fish_coord)
+    move_fishes(c_board, c_dict_fish_coord)
+    shark_move_cand = get_shark_move_cand(c_board, c_dict_fish_coord)
+    num_cand = []
     if len(shark_move_cand) != 0:
         for s_move_cand in shark_move_cand:
-            return dfs(board, s_move_cand, eaten_num, dict_fish_coord)
+            cc_board, cc_dict_fish_coord = copy.deepcopy(c_board), copy.deepcopy(c_dict_fish_coord)
+            num_cand.append(dfs(cc_board, s_move_cand, eaten_num, cc_dict_fish_coord))
+            return max(num_cand)
     else:
         return eaten_num
 
@@ -54,8 +61,8 @@ def get_eaten_num(board, move_cand, eaten_num, dict_fish_coord):
 
     s_row, s_col = dict_fish_coord[0]
     shark = board[s_row][s_col]
-    board[move_cand[0]][move_cand[1]] = (0, eaten_fish[1])
     board[s_row][s_col] = None
+    board[move_cand[0]][move_cand[1]] = (0, eaten_fish[1])
     dict_fish_coord[0] = (move_cand[0], move_cand[1])
 
     return eaten_num
