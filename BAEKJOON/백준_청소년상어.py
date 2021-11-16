@@ -128,6 +128,8 @@ def is_out(n_row, n_col):
 
 
 def is_shark(board, n_row, n_col):
+    if board[n_row][n_col] == None:
+        return False
     if board[n_row][n_col][0] == 0:
         return True
     return False
