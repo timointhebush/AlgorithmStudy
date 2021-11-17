@@ -27,6 +27,8 @@ def solution():
         snake_body.append(snake_head)
         if snake_head not in apple_coords:
             snake_body.popleft()
+        else:
+            del apple_coords[snake_head]
         if sec in dir_change_info:
             snake_dir = change_dir(snake_dir, dir_change_info[sec])
 
@@ -40,7 +42,7 @@ def check_game_over(head, body, N):
     if head in body:
         return True
     h_row, h_col = head
-    if h_row == 0 or h_row == N + 1 or h_col == 0 or h_col == N + 1:
+    if h_row <= 0 or h_row >= N + 1 or h_col <= 0 or h_col >= N + 1:
         return True
     return False
 
@@ -51,7 +53,7 @@ def change_dir(snake_dir, rotate_dir):
     if rotate_dir == "D":  # 오른쪽
         return dirs[(dir_idx + 1) % 4]
     else:
-        return dirs[(dir_idx - 1) % 4]
+        return dirs[(dir_idx + 3) % 4]
 
 
 print(solution())
