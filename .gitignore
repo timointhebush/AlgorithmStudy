@@ -1,2 +1,4 @@
 .history/
 /CODING-TEST
+*.DS_Store
+.vscode
