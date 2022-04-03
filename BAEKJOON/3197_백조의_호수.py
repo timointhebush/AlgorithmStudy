@@ -1,75 +1,81 @@
 from collections import deque
+import sys
 
 
-def solution(R, C, lake, swans):
-    day = 0
-    melted = deque()
-    while True:
-        if is_swan_connected(lake, swans):
-            print(day)
-            return 0
-        melted = melt(R, C, lake, melted)
-        day += 1
+class Solution:
+    def __init__(self, lake, swans, lands):
+        self.lake = lake
+        self.swans = swans
+        self.target_swan = swans[1]
+        self.lands = lands
 
+        self.melt_q, self.swan_q = deque(), deque()
+        self.melt_q_tmp, self.swan_q_tmp = deque(), deque()
+        self.melt_visited, self.swan_visited = set(), set()
 
-def is_swan_connected(lake, swans):
-    visited = set([swans[0]])
-    queue = deque([swans[0]])
-    while queue:
-        sr, sc = queue.popleft()
-        connected = [(sr - 1, sc), (sr + 1, sc), (sr, sc - 1), (sr, sc + 1)]
-        for cr, cc in connected:
-            if (cr, cc) == swans[1]:
-                return True
-            if (cr, cc) not in visited and lake[cr][cc] != "W":
-                visited.add((cr, cc))
-                if lake[cr][cc] != "X":
-                    queue.append((cr, cc))
-    return False
+        self.melt_q.extend(lands)
+        self.melt_q.extend(swans)
 
+        self.swan_q.append(swans[0])
+        self.lake[swans[0][0]][swans[0][1]] = "."
+        self.lake[swans[1][0]][swans[1][1]] = "."
 
-def melt(R, C, lake, melted):
-    visited = set()
-    if len(melted) == 0:
-        for r in range(1, 1 + R):
-            for c in range(1, 1 + C):
-                if (r, c) not in visited and lake[r][c] == ".":
-                    visited.add((r, c))
-                    queue = deque([(r, c)])
-                    while queue:
-                        sr, sc = queue.popleft()
-                        connected = [(sr - 1, sc), (sr + 1, sc), (sr, sc - 1), (sr, sc + 1)]
-                        for cr, cc in connected:
-                            if (cr, cc) not in visited and lake[cr][cc] != "W":
-                                visited.add((cr, cc))
-                                if lake[cr][cc] == "X":
-                                    lake[cr][cc] = "."
-                                    melted.append((cr, cc))
-                                else:
-                                    queue.append((cr, cc))
-        return melted
-    else:
-        new_melted = deque()
-        while melted:
-            sr, sc = melted.popleft()
-            connected = [(sr - 1, sc), (sr + 1, sc), (sr, sc - 1), (sr, sc + 1)]
+    def melt(self):
+        while self.melt_q:
+            r, c = self.melt_q.popleft()
+            if self.lake[r][c] == "X":
+                self.lake[r][c] = "."
+
+            connected = [(r + 1, c), (r - 1, c), (r, c + 1), (r, c - 1)]
             for cr, cc in connected:
-                if (cr, cc) not in visited and lake[cr][cc] != "W":
-                    visited.add((cr, cc))
-                    if lake[cr][cc] == "X":
-                        lake[cr][cc] = "."
-                        new_melted.append((cr, cc))
-        return new_melted
+                if (cr, cc) not in self.melt_visited and self.lake[cr][cc] != "W":
+                    self.melt_visited.add((cr, cc))
+                    if self.lake[cr][cc] == "X":
+                        self.melt_q_tmp.append((cr, cc))
+                    else:
+                        self.melt_q.append((cr, cc))
+
+    def is_swan_connected(self):
+        while self.swan_q:
+            r, c = self.swan_q.popleft()
+            if (r, c) == self.target_swan:
+                return True
+
+            connected = [(r + 1, c), (r - 1, c), (r, c + 1), (r, c - 1)]
+            for cr, cc in connected:
+                if (cr, cc) not in self.swan_visited and self.lake[cr][cc] != "W":
+                    self.swan_visited.add((cr, cc))
+                    if self.lake[cr][cc] == ".":
+                        self.swan_q.append((cr, cc))
+                    else:
+                        self.swan_q_tmp.append((cr, cc))
+        return False
+
+    def swap_q(self):
+        self.melt_q, self.swan_q = self.melt_q_tmp, self.swan_q_tmp
+        self.melt_q_tmp, self.swan_q_tmp = deque(), deque()
 
 
 if __name__ == "__main__":
+    input = sys.stdin.readline
     R, C = tuple(map(int, input().split(" ")))
     lake = [["W" for _ in range(C + 2)] for _ in range(R + 2)]
     swans = []
+    lands = set()
     for r in range(1, 1 + R):
         row = list(input())
         for c in range(1, 1 + C):
             lake[r][c] = row[c - 1]
             if row[c - 1] == "L":
                 swans.append((r, c))
-    solution(R, C, lake, swans)
+            if row[c - 1] == ".":
+                lands.add((r, c))
+    sol = Solution(lake, swans, lands)
+    day = 0
+    while True:
+        sol.melt()
+        if sol.is_swan_connected():
+            print(day)
+            break
+        sol.swap_q()
+        day += 1
