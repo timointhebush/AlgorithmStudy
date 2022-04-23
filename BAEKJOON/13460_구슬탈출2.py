@@ -1,113 +1,70 @@
 import sys
-
+from collections import deque
 input = sys.stdin.readline
 
+def bfs():
+    while q:
+        red_r, red_c, blue_r, blue_c, depth = q.popleft()
+        if depth >= 10: 
+            return -1
+        for direction in dir_list:
+            n_red_r, n_red_c, red_cnt, red_stop_type = lean(red_r, red_c, direction)
+            n_blue_r, n_blue_c, blue_cnt, blue_stop_type = lean(blue_r, blue_c, direction)
+            if blue_stop_type == 'hole':
+                continue
+            if red_stop_type == 'hole':
+                return depth + 1
 
-class BoardGame:
-    def __init__(self, board, red, blue, hole):
-        self.N, self.M = len(board), len(board[0])
-        self.board = board
-        self.red_stack = []
-        self.blue_stack = []
-        self.red = red
-        self.blue = blue
-        self.hole = hole
-        self.count = 0
-
-    def _is_game_over(self, coord):
-        if coord == self.hole:
-            return True
-        else:
-            return False
-
-    def _is_hit_wall(self, coord):
-        r, c = coord
-        if self.board[r][c] == "#":
-            return True
-        else:
-            return False
-
-    def _is_overlap(self, A, B):
-        if A == B:
-            return True
-        else:
-            return False
-
-    def _get_dir_coord(self, direction):
-        if direction == "R":
-            return (0, 1)
-        elif direction == "L":
-            return (0, -1)
-        elif direction == "U":
-            return (-1, 0)
-        else:
-            return (1, 0)
-
-    def _coord_sum(self, A, B):
-        return (A[0] + B[0], A[1] + B[1])
-
-    def _move_one_step(self, direction):
-        coord = self._get_dir_coord(direction)
-        prev_red, prev_blue = self.red, self.blue
-        next_red, next_blue = self._coord_sum(self.red, coord), self._coord_sum(self.blue, coord)
-        hitted_red, hitted_blue = False, False
-        if self._is_hit_wall(next_red):
-            next_red = prev_red
-            hitted_red = True
-        if self._is_hit_wall(next_blue):
-            next_blue = prev_blue
-            hitted_blue = True
-
-        if self._is_overlap(next_red, next_blue):
-            if hitted_blue:
-                next_red = prev_red
-            elif hitted_red:
-                next_blue = prev_blue
-            else:
-                print("예외")
-        self.red, self.blue = next_red, next_blue
-
-    def lean(self, direction):
-        if direction == 'U' or direction == 'D':
-            repeat_n = self.N - 2
-        else:
-            repeat_n = self.M - 2
-        self.red_stack.append(self.red)
-        self.blue_stack.append(self.blue)
-        for _ in range(repeat_n):
-            self._move_one_step(direction)
-            if self._is_game_over(self.red):
-                raise BaseException()
-        self.count += 1
+            if n_red_c == n_blue_c and n_red_r == n_blue_r:
+                dr, dc = dir_to_coord[direction]
+                if red_cnt > blue_cnt:
+                    n_red_r, n_red_c = n_red_r - dr, n_red_c - dc
+                else:
+                    n_blue_r, n_blue_c = n_blue_r - dr, n_blue_c - dc
+            
+            if (n_red_r, n_red_c, n_blue_r, n_blue_c) not in visited:
+                visited.add((n_red_r, n_red_c, n_blue_r, n_blue_c))
+                q.append((n_red_r, n_red_c, n_blue_r, n_blue_c, depth + 1))
+    return -1
 
 
-if __name__ == "__main__":
+def lean(row, col, direction):
+    dr, dc = dir_to_coord[direction]
+    n_row, n_col = row + dr, col + dc
+    move_cnt = 0
+    while True:
+        if board[n_row][n_col] == '#':
+            return row, col, move_cnt, 'wall'
+        elif board[n_row][n_col] == 'O':
+            return row, col, move_cnt, 'hole'
+        row, col = n_row, n_col
+        n_row, n_col = row + dr, col + dc
+        move_cnt += 1
+
+
+
+if __name__ == '__main__':
     N, M = tuple(map(int, input().split()))
     board = []
-    red, blue = (0, 0), (0, 0)
+    red_r, red_c, blue_r, blue_c = 0, 0, 0, 0
     hole = (0, 0)
+    depth = 0
+    # 보드 생성, 각 좌표 확인
     for n in range(N):
-        row = input().split()
-        for m in range(M):
-            if row[m] == "B":
-                blue = (n, m)
-            elif row[m] == "R":
-                red = (n, m)
-            elif row[m] == "O":
-                hole = (n, m)
+        row = list(input())
         board.append(row)
-    board_game = BoardGame(board, red, blue, hole)
-    dir_list = ["U", "D", "R", "L"]
-    counts = []
-    stack = []
-    visited = set()
-    for direction in dir_list:
-        stack.append((board_game.count, direction))
-        visited.add((board_game.count, direction))
-    while stack:
-        _, direction = stack.pop()
-        try:
-            board_game.lean(direction)
-        except BaseException():
-            counts.append(board_game.count)
+        for m in range(M):
+            if row[m] == 'R':
+                red_r, red_c = n, m
+            elif row[m] == 'B':
+                blue_r, blue_c = n, m
+            elif row[m] == 'O':
+                hole = (n, m)
+    
+    dir_list = ['U', 'R', 'D', 'L']
+    dir_to_coord = {'U': (-1, 0), 'R': (0, 1), 'D': (1, 0), 'L': (0, -1)}
 
+    q = deque([(red_r, red_c, blue_r, blue_c, depth)])
+    visited = set([(red_r, red_c, blue_r, blue_c)])
+
+    print(bfs())
