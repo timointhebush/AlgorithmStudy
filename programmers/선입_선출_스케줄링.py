@@ -1,31 +1,25 @@
 def solution(n, cores):
-    n_cores = len(cores)
-    if n <= n_cores:
-        return n_cores
-    n -= n_cores
-    left, right = 1, n * max(cores)
-    # print('n', n)
+    if n <= len(cores):
+        return n
+    n -= len(cores)
+    left, right = 1, max(cores) * n
     while left < right:
-        # print("l", left, "r", right)
         mid = (left + right) // 2
-        # print("mid", mid)
-        n_job_done = 0
+        num_job_done = 0
         for core in cores:
-            n_job_done += mid // core
-        # print('job', n_job_done)
-        if n_job_done < n:
-            left = mid + 1
-        else:  # n_job_done > n
+            num_job_done += mid // core
+        if n <= num_job_done: # 일을 더많이 -> 시간을 줄여야 함.
             right = mid
-        # print()
-    # print(mid)
-    # print(n_job_done)
+        else: # n >= num_job_done : 일을 적게함 -> 시간을 늘려야함
+            left = mid + 1
+    time_job_done = right
     for core in cores:
-        n -= (right - 1) // core
-
+        n -= (time_job_done - 1) // core
     for i, core in enumerate(cores):
-        # print('i', i)
-        if right % core == 0:
+        if time_job_done % core == 0:
             n -= 1
             if n == 0:
                 return i + 1
+
+
+print(solution(6, [1, 2, 3]))
