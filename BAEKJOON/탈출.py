@@ -2,9 +2,19 @@ import sys
 from collections import deque
 
 
-def solve(hog, house, waters):
-    q = deque()
-
+def solve():
+    global board, q
+    while q:
+        r, c, mi, ty = q.popleft()
+        for dir in range(4):
+            nr = r + dr[dir]
+            nc = c + dc[dir]
+            if (nr, nc) == house and ty == "S":
+                return mi + 1
+            if board[nr][nc] != "X" and board[nr][nc] != "D" and board[nr][nc] != "S" and board[nr][nc] != "*":
+                board[nr][nc] = ty
+                q.append((nr, nc, mi + 1, ty))
+    return "KAKTUS"
 
 
 if __name__ == "__main__":
@@ -16,18 +26,23 @@ if __name__ == "__main__":
     hog = (0, 0)
     house = (0, 0)
     waters = []
-    board = []
 
-    R, C = tuple(map(int, input()))
+    R, C = map(int, input().split())
+    board = [['X' for _ in range(C + 2)] for _ in range(R + 2)]
+
     for r in range(R):
         row = list(input())
         for c in range(C):
-            if row[c] == "*": # 물
-                waters.append((r, c))
-            elif row[c] == "D": # 비버 굴
-                house = (r, c)
-            elif row[c] == "S": # 고슴도치
-                hog = (r, c)
-        board.append(row)
+            val = row[c]
+            board[r + 1][c + 1] = val
+            if val == "*": # 물
+                waters.append((r + 1, c + 1, 0, "*"))
+            elif val == "D": # 비버 굴
+                house = (r + 1, c + 1)
+            elif val == "S": # 고슴도치
+                hog = (r + 1, c + 1)
 
-    print(solve(hog, house, waters))
+    q = deque(waters)
+    q.append((hog[0], hog[1], 0, "S"))
+
+    print(solve())
