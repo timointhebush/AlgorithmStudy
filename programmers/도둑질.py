@@ -10,5 +10,5 @@ def solution(money):
         b[i] = max(b[i - 1], money[i] + b[i - 2])
     return max(a[len(money) - 1], b[len(money) - 2])
 
-
+# 22.08.01 시도 실패
 print(solution([1, 2, 3, 1]))
