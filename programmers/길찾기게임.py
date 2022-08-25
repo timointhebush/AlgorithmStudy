@@ -2,67 +2,64 @@ class Node:
     def __init__(self, value, x):
         self.value = value
         self.x = x
-        self.left, self.right = None, None
+        self.left = None
+        self.right = None
 
 
 class Tree:
-    def __init__(self, root):
-        self.root = root
+    def __init__(self):
+        self.root = Node(None, -1)
+        self.order_list = []
 
-    def _insert(self, parent_node, value, x):
-        is_right = False
-        if parent_node.x < x:
-            target_node = parent_node.right
-            is_right = True
+    def insert_node(self, value, x):
+        self._insert_node(self.root, value, x)
+
+    def _insert_node(self, node, value, x):
+        if node.value is None:
+            node.value = value
+            node.x = x
+            node.left = Node(None, -1)
+            node.right = Node(None, -1)
+        elif node.x < x:
+            self._insert_node(node.right, value, x)
         else:
-            target_node = parent_node.left
-
-        if target_node is None:
-            target_node = Node(value, x)
-            if is_right:
-                parent_node.right = target_node
-            else:
-                parent_node.left = target_node
-        else:
-            self._insert(target_node, value, x)
-
-    def insert(self, value, x):
-        self._insert(self.root, value, x)
-
-    def _preorder(self, parent_node, value_list):
-        value_list.append(parent_node.value)
-        if parent_node.left is not None:
-            self._preorder(parent_node.left, value_list)
-        if parent_node.right is not None:
-            self._preorder(parent_node.right, value_list)
-        self.preorder_result = value_list
+            self._insert_node(node.left, value, x)
 
     def preorder(self):
-        self._preorder(self.root, [])
-        return self.preorder_result
+        self.order_list = []
+        self._preorder(self.root)
+        return self.order_list
 
-    def _postorder(self, parent_node, value_list):
-        if parent_node.left is not None:
-            self._postorder(parent_node.left, value_list)
-        if parent_node.right is not None:
-            self._postorder(parent_node.right, value_list)
-        value_list.append(parent_node.value)
-        self.postorder_result = value_list
+    def _preorder(self, node):
+        if node.value is not None:
+            self.order_list.append(node.value)
+            self._preorder(node.left)
+            self._preorder(node.right)
 
     def postorder(self):
-        self._postorder(self.root, [])
-        return self.postorder_result
+        self.order_list = []
+        self._postorder(self.root)
+        return self.order_list
+
+    def _postorder(self, node):
+        if node.value is not None:
+            self._postorder(node.left)
+            self._postorder(node.right)
+            self.order_list.append(node.value)
 
 
 def solution(nodeinfo):
+    answer = []
     for i in range(len(nodeinfo)):
-        nodeinfo[i] = [i + 1, nodeinfo[i]]
-    nodeinfo = sorted(nodeinfo, key=lambda x: -x[1][1])
+        nodeinfo[i].append(i + 1)
+    nodeinfo = sorted(nodeinfo, key=lambda x: -x[1])
+    tree = Tree()
+    for (x, y, i) in nodeinfo:
+        tree.insert_node(i, x)
+    answer.append(tree.preorder())
+    answer.append(tree.postorder())
+    return answer
 
-    tree = Tree(Node(nodeinfo[0][0], nodeinfo[0][1][0]))
-    for i in range(1, len(nodeinfo)):
-        value, x = nodeinfo[i][0], nodeinfo[i][1][0]
-        tree.insert(value, x)
-    return [tree.preorder(), tree.postorder()]
 
-print(solution([[5,3],[11,5],[13,3],[3,5],[6,1],[1,3],[8,6],[7,2],[2,2]]))
+if __name__ == "__main__":
+    print(solution([[5,3],[11,5],[13,3],[3,5],[6,1],[1,3],[8,6],[7,2],[2,2]]))
