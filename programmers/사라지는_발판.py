@@ -1,62 +1,62 @@
 dr = [-1, 1, 0, 0]
 dc = [0, 0, -1, 1]
 
-R, C = 0, 0
 game_board = []
-
-
-def is_in(r, c):
-    return 0 <= r < R and 0 <= c < C
-
-
-def is_finished(r, c):
-    for dir in range(4):
-        nxt_r = r + dr[dir]
-        nxt_c = c + dc[dir]
-        if is_in(nxt_r, nxt_c) and game_board[nxt_r][nxt_c]:
-            return False
-    return True
+R = 0
+C = 0
 
 
 def solution(board, aloc, bloc):
     global game_board, R, C
     game_board = board
-    R = len(board)
-    C = len(board[0])
-    return solve(aloc[0], aloc[1], bloc[0], bloc[1])[1]
+    R, C = len(board), len(board[0])
+    _, total_move = get_cur_is_win_and_total_move(tuple(aloc), tuple(bloc))
+    return total_move
 
 
-def solve(cur_r, cur_c, opp_r, opp_c):
-    """
-    cur의 턴일 때, 최선의 플레이 시 (승리 여부, 최적 플레이 시 턴 수) 반환
-    """
+def get_cur_is_win_and_total_move(cur, opp):
     global game_board
-    if is_finished(cur_r, cur_c):
+    if not is_movable(cur):
         return False, 0
-    if cur_r == opp_r and cur_c == opp_c:
+    if cur == opp:
         return True, 1
 
-    can_win = False
-    min_turn = float("inf")
-    max_turn = 0
-    for dir in range(4):
-        nxt_r = cur_r + dr[dir]
-        nxt_c = cur_c + dc[dir]
-        if not is_in(nxt_r, nxt_c) or not game_board[nxt_r][nxt_c]:
+    cur_winnable = False
+    min_total_move = float('inf')
+    max_total_move = 0
+    for i in range(4):
+        nxt_cur = (cur[0] + dr[i], cur[1] + dc[i])
+        if not can_move(nxt_cur):
             continue
-        game_board[cur_r][cur_c] = 0
-        result = solve(opp_r, opp_c, nxt_r, nxt_c)
-        game_board[cur_r][cur_c] = 1
+        game_board[cur[0]][cur[1]] = 0
+        opp_is_win, total_move_since_now = get_cur_is_win_and_total_move(opp, nxt_cur)
+        game_board[cur[0]][cur[1]] = 1
 
-        if not result[0]:
-            # opp가 패배
-            can_win = True
-            min_turn = min(min_turn, result[1])
-        elif not can_win:
-            max_turn = max(max_turn, result[1])
-    turn = min_turn if can_win else max_turn
-    return can_win, turn + 1
-
+        if not opp_is_win:
+            cur_winnable = True
+            min_total_move = min(min_total_move, total_move_since_now)
+        elif not cur_winnable:
+            max_total_move = max(max_total_move, total_move_since_now)
+    total_move = min_total_move if cur_winnable else max_total_move
+    return cur_winnable, total_move + 1
 
 
-print(solution([[1, 1, 1], [1, 1, 1], [1, 1, 1]], [1, 0], [1, 2]))
+def is_in(player):
+    return 0 <= player[0] < R and 0 <= player[1] < C
+
+
+def can_move(coord):
+    return is_in(coord) and game_board[coord[0]][coord[1]]
+
+
+def is_movable(cord):
+    for i in range(4):
+        nxt_cord = (cord[0] + dr[i], cord[1] + dc[i])
+        if can_move(nxt_cord):
+            return True
+    return False
+
+
+if __name__ == "__main__":
+    # print(solution([[1, 1, 1], [1, 1, 1], [1, 1, 1]], [1, 0], [1, 2]))
+    print(solution([[1, 1, 1], [1, 0, 1], [1, 1, 1]], [1, 0], [1, 2]))
