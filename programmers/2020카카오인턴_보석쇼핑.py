@@ -1,33 +1,47 @@
-def solution(gems):
-    ans = []
-    l, r = 0, 0
-    numOfKind, numOfGem = len(set(gems)), {gems[r] : 1}
-    lenOfDis = len(gems)
-    while True:
-        if len(numOfGem) < numOfKind:
-            r += 1
-            if r >= lenOfDis:
-                break
-            gem = gems[r]
-            if gem not in numOfGem:
-                numOfGem[gem] = 1
-            else:
-                numOfGem[gem] += 1
-        else: # len(numOfGem) = numOfKind
-            if l >= lenOfDis:
-                break
-            ans.append( (l, r) )
-            gem = gems[l]
-            numOfGem[gem] -= 1
-            if numOfGem[gem] == 0:
-                del numOfGem[gem]
-            l += 1
-    ans = sorted(ans, key=lambda x : (x[1]-x[0], x[0]))
-    a, b = ans[0]
-    return( [a+1, b+1] )
+from collections import defaultdict, deque
+import copy
 
-print(solution(["DIA", "RUBY", "RUBY", "DIA", "DIA", "EMERALD", "SAPPHIRE", "DIA"]	))
-print(solution(["AA", "AB", "AC", "AA", "AC"]))
-print(solution(['A']))
-print(solution(["A","A","A","B","B"]))
-print(solution(["A","B","B","B","B","B","B","C","B","A"]))
+
+def solution(gems):
+    gem_to_num = defaultdict(int)
+    for gem in gems:
+        gem_to_num[gem] += 1
+    left, right = 0, len(gems) - 1
+    q = deque()
+    q.append((left, right, copy.deepcopy(gem_to_num)))
+
+    while q:
+        cur_l, cur_r, cur_num = q.popleft()
+        if cur_l >= cur_r:
+            continue
+
+        gem = gems[cur_l]
+        if cur_num[gem] > 1:
+            nxt_l = cur_l + 1
+            length = cur_r - nxt_l
+            min_length = right - left
+            if length < min_length or (length == min_length and cur_l < left):
+                left, right = nxt_l, cur_r
+            if cur_num[gem] > 1:
+                cur_num[gem] -= 1
+                q.append((nxt_l, cur_r, copy.deepcopy(cur_num)))
+                cur_num[gem] += 1
+
+        gem = gems[cur_r]
+        if cur_num[gem] > 1:
+            nxt_r = cur_r - 1
+            length = nxt_r - cur_l
+            min_length = right - left
+            if length < min_length or (length == min_length and cur_l < left):
+                left, right = cur_l, nxt_r
+            if cur_num[gem] > 1:
+                cur_num[gem] -= 1
+                q.append((cur_l, nxt_r, copy.deepcopy(cur_num)))
+                cur_num[gem] += 1
+    return [left + 1, right + 1]
+
+
+if __name__ == "__main__":
+    print(solution(["AA", "AB", "AC", "AA", "AC"]))
+    print(solution(["XYZ", "XYZ", "XYZ"]))
+    print(solution(["ZZZ", "YYY", "NNNN", "YYY", "BBB"]))
