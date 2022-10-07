@@ -1,47 +1,36 @@
-from collections import defaultdict, deque
-import copy
+from collections import defaultdict
 
 
 def solution(gems):
+    left, right = 0, 0
+    num_of_types = len(set(gems))
     gem_to_num = defaultdict(int)
-    for gem in gems:
-        gem_to_num[gem] += 1
-    left, right = 0, len(gems) - 1
-    q = deque()
-    q.append((left, right, copy.deepcopy(gem_to_num)))
+    gem_to_num[gems[0]] = 1
+    last_idx = len(gems) - 1
+    answer = []
+    while True:
+        current_num_of_types = len(gem_to_num)
+        if current_num_of_types < num_of_types:
+            right += 1
+            if right > last_idx:
+                break
+            gem = gems[right]
+            gem_to_num[gem] += 1
+        else:  # len(gem_to_num) == num_of_types
+            if left > last_idx:
+                break
+            answer.append((left, right))
 
-    while q:
-        cur_l, cur_r, cur_num = q.popleft()
-        if cur_l >= cur_r:
-            continue
+            gem = gems[left]
+            gem_to_num[gem] -= 1
+            if gem_to_num[gem] == 0:
+                del gem_to_num[gem]
+            left += 1
 
-        gem = gems[cur_l]
-        if cur_num[gem] > 1:
-            nxt_l = cur_l + 1
-            length = cur_r - nxt_l
-            min_length = right - left
-            if length < min_length or (length == min_length and cur_l < left):
-                left, right = nxt_l, cur_r
-            if cur_num[gem] > 1:
-                cur_num[gem] -= 1
-                q.append((nxt_l, cur_r, copy.deepcopy(cur_num)))
-                cur_num[gem] += 1
-
-        gem = gems[cur_r]
-        if cur_num[gem] > 1:
-            nxt_r = cur_r - 1
-            length = nxt_r - cur_l
-            min_length = right - left
-            if length < min_length or (length == min_length and cur_l < left):
-                left, right = cur_l, nxt_r
-            if cur_num[gem] > 1:
-                cur_num[gem] -= 1
-                q.append((cur_l, nxt_r, copy.deepcopy(cur_num)))
-                cur_num[gem] += 1
-    return [left + 1, right + 1]
+    answer = sorted(answer, key=lambda x: (x[1] - x[0], x[0]))
+    a, b = answer[0]
+    return [a + 1, b + 1]
 
 
 if __name__ == "__main__":
-    print(solution(["AA", "AB", "AC", "AA", "AC"]))
-    print(solution(["XYZ", "XYZ", "XYZ"]))
-    print(solution(["ZZZ", "YYY", "NNNN", "YYY", "BBB"]))
+    print(solution(["DIA", "RUBY", "RUBY", "DIA", "DIA", "EMERALD", "SAPPHIRE", "DIA"]))
