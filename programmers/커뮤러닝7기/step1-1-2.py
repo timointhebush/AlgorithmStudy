@@ -1,26 +1,28 @@
-from collections import defaultdict
+RED = 1
+GREEN = 2
 
 
-def solution(participant, completion):
-    names = set()
-    same_name_to_num = defaultdict(int)
-    for c in completion:
-        if c not in names:
-            names.add(c)
+def solution(bell):
+    for i in range(len(bell)):
+        if bell[i] == RED:
+            bell[i] = -1
         else:
-            same_name_to_num[c] += 1
+            bell[i] = 1
 
-    for same_name in same_name_to_num.keys():
-        same_name_to_num[same_name] += 1
+    new_bell = [0 for _ in range(len(bell))]
+    new_bell[0] = bell[0]
 
-    for p in participant:
-        if p not in names:
-            return p
-        if p in same_name_to_num:
-            same_name_to_num[p] -= 1
-            if same_name_to_num[p] == 0:
-                del same_name_to_num[p]
-                names.remove(p)
-        else:
-            names.remove(p)
-    return list(names)[0]
+    for i in range(1, len(bell)):
+        new_bell[i] = new_bell[i - 1] + bell[i]
+
+    min_idx, max_idx = 0, 0
+    for i in range(len(bell)):
+        if new_bell[i] == 0:
+            min_idx = min(min_idx, i)
+            max_idx = max(max_idx, i)
+
+    return max_idx - min_idx
+
+
+if __name__ == "__main__":
+    print(solution([1, 2, 1, 1, 1, 2, 2, 1]))
